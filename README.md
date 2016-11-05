@@ -134,6 +134,29 @@ npm run test-storybook -- --loaders=loaders.js
 > "test-storybook": "storyshots --loaders=loaders.js"
 > ~~~
 
+It is also possible to mock the loader using an ES6 proxy if it is supported by your version of node. For example, react-css-components allows you to create components from special css files using a webpack loader:
+
+```js
+import { Button } from '../src/components.rcss';
+
+storiesOf('Button', module)
+  .add('simple', () => (
+    <Button>Hello</Button>
+  ));
+```
+
+Importing such a file return an object whose keys are React components. We can use a proxy in our loaders to return a mock component:
+
+```js
+const ProxyComp = props => <div { ...props }/>;
+
+const handler = {
+  get: () => ProxyComp
+};
+
+loaders.rcss = () => new Proxy({}, ProxyComp);
+```
+
 ### Add Window and Global Polyfills
 
 StoryShot doesn't use an actual browser, to run your code. Since your UI components may use browser features, we try to create a minimal browser environment with JSDom and with some common polyfills.
