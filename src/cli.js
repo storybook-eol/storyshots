@@ -10,6 +10,7 @@ import EventEmitter from 'events';
 import loadBabelConfig from '@kadira/storybook/dist/server/babel_config';
 import { filterStorybook } from './util';
 import runWithRequireContext from './require_context';
+import { loadAndTweakWebpackConfig, runWebpack, evaluateStorybookConfig } from './webpack_helper';
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -29,6 +30,7 @@ program
   .option('--extension [string]', 'File extension to use for storyshot files. Default is `.shot`')
   .option('--polyfills [string]', 'Add global polyfills')
   .option('--loaders [string]', 'Add loaders')
+  .option('--webpack', 'Use [config-dir]/webpack.config.js (default: false, disables --loaders)')
   .parse(process.argv);
 
 const {
@@ -37,30 +39,52 @@ const {
   loaders: loadersPath = require.resolve('./default_config/loaders.js'),
   grep,
   exclude,
+  webpack = false,
 } = program;
 
 const configPath = path.resolve(configDir, 'config.js');
 
-const babelConfig = loadBabelConfig(configDir);
+function createBabelConfig() {
+  const babelConfig = loadBabelConfig(configDir);
 
-// cacheDir is webpack babel loader specific. We don't run webpack.
-delete babelConfig.cacheDirectory;
+  // cacheDir is webpack babel loader specific. We don't run webpack.
+  delete babelConfig.cacheDirectory;
 
-require('babel-register')(babelConfig);
-require('babel-polyfill');
+  require('babel-register')(babelConfig);
+  require('babel-polyfill');
 
-// load loaders
-const loaders = require(path.resolve(loadersPath));
+  // load loaders
+  const loaders = require(path.resolve(loadersPath));
 
-Object.keys(loaders).forEach(ext => {
-  const loader = loaders[ext];
-  require.extensions[`.${ext}`] = (m, filepath) => {
-    m.exports = loader(filepath);
+  Object.keys(loaders).forEach(ext => {
+    const loader = loaders[ext];
+    require.extensions[`.${ext}`] = (m, filepath) => {
+      m.exports = loader(filepath);
+    };
+  })
+
+  // load polyfills
+  require(path.resolve(polyfillsPath));
+
+  return babelConfig
+};
+
+function loadStorybookUsingBabel(babelConfig) {
+  const content = babel.transformFileSync(configPath, babelConfig).code;
+  const contextOpts = {
+    filename: configPath,
+    dirname: path.resolve(configDir),
   };
-})
+  runWithRequireContext(content, contextOpts);
+  return require('@kadira/storybook').getStorybook();
+};
 
-// load polyfills
-require(path.resolve(polyfillsPath));
+async function loadStorybookUsingWebpack(webpackConfig) {
+  const storybookConfig = await runWebpack(webpackConfig)
+  return evaluateStorybookConfig(storybookConfig, polyfillsPath)  
+}
+
+const config = (webpack) ? loadAndTweakWebpackConfig(configDir) : createBabelConfig()
 
 // set userAgent so storybook knows we're storyshots
 if(!global.navigator) {
@@ -78,13 +102,8 @@ async function main() {
     const channel = new EventEmitter();
     addons.setChannel(channel);
 
-    const content = babel.transformFileSync(configPath, babelConfig).code;
-    const contextOpts = {
-      filename: configPath,
-      dirname: path.resolve(configDir),
-    };
-    runWithRequireContext(content, contextOpts);
-    const storybook = require('@kadira/storybook').getStorybook();
+    const storybook = (webpack) ? await loadStorybookUsingWebpack(config) : loadStorybookUsingBabel(config);
+        
     const result = await runner.run(filterStorybook(storybook, grep, exclude));
     const fails = result.errored + result.unmatched;
     const exitCode = fails > 0 ? 1: 0;

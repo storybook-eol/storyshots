@@ -134,6 +134,16 @@ npm run test-storybook -- --loaders=loaders.js
 > "test-storybook": "storyshots --loaders=loaders.js"
 > ~~~
 
+### Use Webpack
+
+If you already have a Webpack configuration file you use with Storybook, you can use it in StoryShots as well. Simply run StoryShots like this:
+
+```
+storyshots --webpack
+```
+
+StoryShots will look for the webpack configuration file (`webpack.config.js`) in the config dir (provided by `--config-dir`), and run Webpack to load the stories.
+
 ### Add Window and Global Polyfills
 
 StoryShot doesn't use an actual browser, to run your code. Since your UI components may use browser features, we try to create a minimal browser environment with JSDom and with some common polyfills.
