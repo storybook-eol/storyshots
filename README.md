@@ -76,7 +76,7 @@ initStoryshots({
 
 ### `storyRegex`
 
-If you'd like to only run a subset of the stories for your snapshot tests: 
+If you'd like to only run a subset of the stories for your snapshot tests:
 
 ```js
 initStoryshots({
@@ -85,3 +85,7 @@ initStoryshots({
 ```
 
 Here is an example of [a regex](https://regex101.com/r/vkBaAt/2) which does not pass if `"Relay"` is in the name: `/^((?!(r|R)elay).)*$/`.
+
+### `noMatchSnapshots`
+
+If you don't want to run snapshot tests, but instead just ensure that your stories render without error, pass `noMatchSnapshots: true`. This will "smoke" test your stories and make sure you haven't broken anything, which is appropriate early in the development process.
