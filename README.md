@@ -3,6 +3,12 @@
 Jest Snapshot Testing for [Storybook](https://getstorybook.io/).<br/>
 (Supports both [React](https://github.com/storybooks/react-storybook) and [React Native](https://github.com/storybooks/react-native-storybook) Storybook)
 
+--- 
+
+**This repo has been deprecated because it's now included in https://github.com/storybooks/storybook**
+
+---
+
 ![StoryShots In Action](docs/storyshots-fail.png)
 
 With StoryShots, you could use your existing Storybook stories as the input for Jest Snapshot Testing.
