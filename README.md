@@ -72,21 +72,33 @@ initStoryshots({
 
 ### `suit`
 
-By default, we group stories inside Jest test suit called "StoryShots". You could change it like this:
+By default, we group stories inside Jest test suit called "Storyshots". You could change it like this:
 
 ```js
 initStoryshots({
-  suit: 'MyStoryShots'
+  suit: 'MyStoryshots'
 });
 ```
 
-### `storyRegex`
+### `storyKindRegex`
 
-If you'd like to only run a subset of the stories for your snapshot tests: 
+If you'd like to only run a subset of the stories for your snapshot tests based on the story kind:
 
 ```js
 initStoryshots({
-  storyRegex: /buttons/
+  storyKindRegex: /MyComponent/
+});
+```
+
+This can be useful if you want to separate the snapshots in directories next to each component. See an example [here](https://github.com/storybooks/storyshots/issues/91).
+
+### `storyNameRegex`
+
+If you'd like to only run a subset of the stories for your snapshot tests based on the story name:
+
+```js
+initStoryshots({
+  storyNameRegex: /buttons/
 });
 ```
 
