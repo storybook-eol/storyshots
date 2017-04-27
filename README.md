@@ -3,7 +3,7 @@
 Jest Snapshot Testing for [Storybook](https://getstorybook.io/).<br/>
 (Supports both [React](https://github.com/storybooks/react-storybook) and [React Native](https://github.com/storybooks/react-native-storybook) Storybook)
 
---- 
+---
 
 **This repo has been deprecated because it's now included in https://github.com/storybooks/storybook**
 
@@ -82,7 +82,7 @@ initStoryshots({
 
 ### `storyRegex`
 
-If you'd like to only run a subset of the stories for your snapshot tests: 
+If you'd like to only run a subset of the stories for your snapshot tests:
 
 ```js
 initStoryshots({
@@ -91,3 +91,26 @@ initStoryshots({
 ```
 
 Here is an example of [a regex](https://regex101.com/r/vkBaAt/2) which does not pass if `"Relay"` is in the name: `/^((?!(r|R)elay).)*$/`.
+
+### Mocking refs
+
+If you use refs in your components, you may encounter the error:
+
+```
+TypeError: Cannot read property '<someProperty>' of null
+```
+
+To fix this, you will need to [mock refs](https://facebook.github.io/react/blog/2016/11/16/react-v15.4.0.html#mocking-refs-for-snapshot-testing).
+
+You can pass a `createNodeMock` as an option on your story's `render` function:
+
+```js
+const createNodeMock = element => (element.type === 'input') ? { someProperty: 123 } : null
+
+const mockedRefStory = () => (
+  <ComponentWithRef onLoad={action('component mount')} />
+)
+mockedRefStory.options = { createNodeMock }
+
+storiesOf('Component with ref', module).add('on mount', mockedRefStory)
+```
