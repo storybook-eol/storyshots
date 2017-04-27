@@ -62,7 +62,8 @@ export default function testStorySnapshots (options = {}) {
           it(story.name, () => {
             const context = { kind: group.kind, story: story.name }
             const renderedStory = story.render(context)
-            const tree = renderer.create(renderedStory, options.rendererOptions).toJSON()
+            const createNodeMock = (story && story.render && story.render.options && story.render.options.createNodeMock) ? story.render.options.createNodeMock : null
+            const tree = renderer.create(renderedStory, { createNodeMock }).toJSON()
             expect(tree).toMatchSnapshot()
           })
         }
