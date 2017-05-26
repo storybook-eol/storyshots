@@ -1,6 +1,6 @@
 # StoryShots
 
-This contents of this repo was moved to the [Storybook monorepo](https://github.com/storybooks/storybook/) and the package name has been changed.
+This contents of this repo was moved to the [Storybook monorepo](https://github.com/storybooks/storybook/) and the NPM package name has been changed.
 
 - The old name of the package was: **storyshots**
 - The new name of the package is: **@storybook/addon-storyshots**
