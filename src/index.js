@@ -5,6 +5,8 @@ import addons from '@kadira/storybook-addons'
 import runWithRequireContext from './require_context'
 import createChannel from './storybook-channel-mock'
 const { describe, it, expect } = global
+import { shallow } from 'enzyme'
+import { shallowToJson } from 'enzyme-to-json'
 
 let storybook
 let configPath
@@ -62,7 +64,8 @@ export default function testStorySnapshots (options = {}) {
           it(story.name, () => {
             const context = { kind: group.kind, story: story.name }
             const renderedStory = story.render(context)
-            const tree = renderer.create(renderedStory).toJSON()
+            const tree = options.shallowRender ? shallowToJson(shallow(renderedStory)) : renderer.create(renderedStory).toJSON()
+
             expect(tree).toMatchSnapshot()
           })
         }
